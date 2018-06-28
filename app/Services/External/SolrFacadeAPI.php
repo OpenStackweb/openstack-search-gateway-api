@@ -38,17 +38,27 @@ final class SolrFacadeAPI implements ISearchApi
         try {
 
             $solr_host = Config::get("solr.host");
+            $search_query = Config::get("solr.search_query");
+            $response_fields = Config::get("solr.response_fields");
+            $query_weights = Config::get("solr.query_weights");
+
             if(empty($solr_host))
                 throw new \InvalidArgumentException("missing solr host config param!");
 
             $client = new Client();
             $endpoint = sprintf('%s/solr/%s/select', $solr_host, $ctx);
             $query = [
-                'q' => sprintf('title:%s OR content:%s OR url:%s', $term, $term, $term),
+                'q' => sprintf($search_query, $term, $term, $term),
+                'fl' => $response_fields,
                 'wt' => 'json',
                 'start' => $offset,
                 'rows' => $limit
             ];
+
+            if(!empty($query_weights)){
+                $query['qf'] = $query_weights;
+                $query["defType"] = "edismax";
+            }
 
             $response = $client->get($endpoint, [
                     'query' => $query
