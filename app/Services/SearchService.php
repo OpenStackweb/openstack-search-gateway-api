@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+use App\Models\SearchStatistic;
 use App\Services\External\ISearchApi;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -46,6 +47,17 @@ final class SearchService implements ISearchService
     public function getSearch($ctx, $term, $offset = 0, $limit = 10)
     {
         try {
+
+            $term = trim($term);
+            $search_statistic = SearchStatistic::where('term', $term)->first();
+            if(!$search_statistic) {
+                $search_statistic = new SearchStatistic();
+                $search_statistic->hits = 0;
+            }
+            $search_statistic->term = $term;
+            $search_statistic->hits = $search_statistic->hits + 1;
+            $search_statistic->save();
+
             $res = $this->facade->doSearchQuery($ctx, $term, $offset, $limit);
             $response = $res['response'];
             return [
@@ -72,6 +84,7 @@ final class SearchService implements ISearchService
     public function getSuggestions($ctx, $term, $offset = 0, $limit = 10)
     {
         try {
+            $term = trim($term);
             $res = $this->facade->doSuggestionQuery($ctx, $term, $offset, $limit);
             $suggest_res = $res['suggest'];
             $dic = [];
