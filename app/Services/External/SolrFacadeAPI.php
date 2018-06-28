@@ -37,6 +37,7 @@ final class SolrFacadeAPI implements ISearchApi
 
         try {
 
+            $term = urlencode($term);
             $solr_host = Config::get("solr.host");
             $search_query = Config::get("solr.search_query");
             $response_fields = Config::get("solr.response_fields");
@@ -91,7 +92,7 @@ final class SolrFacadeAPI implements ISearchApi
         //http://localhost:32878/solr/www-openstack/suggest?suggest=true&suggest.build=true&wt=json&suggest.q=speakers
 
         try {
-
+            $term = urlencode($term);
             $solr_host = Config::get("solr.host");
             if(empty($solr_host))
                 throw new \InvalidArgumentException("missing solr host config param!");
