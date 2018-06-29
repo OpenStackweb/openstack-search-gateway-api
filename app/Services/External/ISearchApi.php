@@ -29,5 +29,5 @@ interface ISearchApi
      * @param int $limit
      * @return array
      */
-    public function doSuggestionQuery($ctx, $term, $offset = 0, $limit = 10);
+    public function doSuggestionQuery($ctx, $term);
 }

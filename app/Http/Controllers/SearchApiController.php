@@ -11,7 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+use App\Exceptions\NotFoundEntityException;
 use App\Services\ISearchService;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Input;
 /**
@@ -41,10 +43,20 @@ final class SearchApiController extends JsonController
      */
     public function doSearch($context, $term){
         try {
-            $offset = intval(Input::get("offset", 0));
-            $limit = intval(Input::get("limit", 10));
-            $res = $this->service->getSearch($context, $term, $offset, $limit);
+            $page = intval(Input::get("page", 1));
+            if($page <= 0)
+                return $this->error412(['invalid value for page param']);
+            $page_size = intval(Input::get("page_size", 10));
+
+            if($page_size < 10)
+                return $this->error412(['invalid value for page_size param']);
+
+            $res = $this->service->getSearch($context, $term, $page, $page_size);
             return $this->ok($res);
+        }
+        catch (NotFoundEntityException $ex1){
+            Log::warning($ex1);
+            return $this->error404();
         }
         catch (\Exception $ex){
             Log::error($ex);
@@ -59,10 +71,20 @@ final class SearchApiController extends JsonController
      */
     public function getSuggestions($context, $term){
         try {
-            $offset = intval(Input::get("offset", 0));
-            $limit = intval(Input::get("limit", 10));
-            $res = $this->service->getSuggestions($context, $term, $offset, $limit);
+            $top = intval(Input::get("top", 10));
+            if($top <= 0)
+                return $this->error412(['invalid value for top param']);
+
+            $res = $this->service->getSuggestions($context, $term, $top);
             return $this->ok($res);
+        }
+        catch (NotFoundEntityException $ex1){
+            Log::warning($ex1);
+            return $this->error404();
+        }
+        catch (RequestException $ex2){
+            Log::warning($ex2);
+            return $this->error404();
         }
         catch (\Exception $ex){
             Log::error($ex);

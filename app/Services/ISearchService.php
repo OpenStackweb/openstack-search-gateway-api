@@ -12,6 +12,8 @@
  * limitations under the License.
  **/
 
+use App\Exceptions\NotFoundEntityException;
+
 /**
  * Interface ISearchService
  * @package App\Services
@@ -21,18 +23,19 @@ interface ISearchService
     /**
      * @param string $ctx
      * @param string $term
-     * @param int $offset
-     * @param int $limit
+     * @param int $page
+     * @param int $page_size
      * @return array
+     * @throws NotFoundEntityException
      */
-    public function getSearch($ctx, $term, $offset = 0, $limit = 10);
+    public function getSearch($ctx, $term, $page = 1, $page_size = 10);
 
     /**
      * @param string $ctx
      * @param string $term
-     * @param int $offset
-     * @param int $limit
+     * @param int $top
      * @return array
+     * @throws NotFoundEntityException
      */
-    public function getSuggestions($ctx, $term,  $offset = 0, $limit = 10);
+    public function getSuggestions($ctx, $term,  $top = 10);
 }

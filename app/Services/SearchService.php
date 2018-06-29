@@ -11,6 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+use App\Exceptions\NotFoundEntityException;
+use App\Models\SearchContext;
 use App\Models\SearchStatistic;
 use App\Services\External\ISearchApi;
 use Exception;
@@ -39,32 +41,33 @@ final class SearchService implements ISearchService
     /**
      * @param string $ctx
      * @param string $term
-     * @param int $offset
-     * @param int $limit
+     * @param int $page
+     * @param int $page_size
      * @return array
      * @throws Exception
      */
-    public function getSearch($ctx, $term, $offset = 0, $limit = 10)
+    public function getSearch($ctx, $term, $page = 1, $page_size = 10)
     {
         try {
-
+            $ctx = trim($ctx);
             $term = trim($term);
-            $search_statistic = SearchStatistic::where('term', $term)->first();
-            if(!$search_statistic) {
-                $search_statistic = new SearchStatistic();
-                $search_statistic->hits = 0;
-            }
-            $search_statistic->term = $term;
-            $search_statistic->hits = $search_statistic->hits + 1;
-            $search_statistic->save();
+            $search_context   = SearchContext::where('external_id', $ctx)->first();
+            if(!$search_context)
+                throw new NotFoundEntityException(sprintf("context %s not found", $ctx));
 
-            $res = $this->facade->doSearchQuery($ctx, $term, $offset, $limit);
+            $search_statistic = new SearchStatistic();
+            $search_statistic->term = $term;
+            $search_statistic->context_id = $search_context->id;
+            $search_statistic->save();
+            $offset = ($page - 1) * $page_size;
+            $res = $this->facade->doSearchQuery($ctx, $term, $offset, $page_size);
             $response = $res['response'];
             return [
                 'results' => $response['docs'],
                 'qty'     => $response['numFound'],
                 'offset'  => $response['start'],
-                'limit'   => $limit
+                'limit'   => $page_size,
+                'page'    => $page
             ];
         }
         catch (Exception $ex){
@@ -81,11 +84,16 @@ final class SearchService implements ISearchService
      * @return array
      * @throws Exception
      */
-    public function getSuggestions($ctx, $term, $offset = 0, $limit = 10)
+    public function getSuggestions($ctx, $term, $top = 10)
     {
         try {
+            $ctx = trim($ctx);
             $term = trim($term);
-            $res = $this->facade->doSuggestionQuery($ctx, $term, $offset, $limit);
+            $search_context   = SearchContext::where('external_id', $ctx)->first();
+            if(!$search_context)
+                throw new NotFoundEntityException(sprintf("context %s not found", $ctx));
+
+            $res = $this->facade->doSuggestionQuery($ctx, $term);
             $suggest_res = $res['suggest'];
             $dic = [];
             $list = [];
@@ -95,7 +103,6 @@ final class SearchService implements ISearchService
                     $suggestions = $results['suggestions'];
                     foreach ($suggestions as $entry) {
                         if (isset($dic[$entry['payload']])) continue;
-
                         $dic[$entry['payload']] = $entry['payload'];
                         $list[] = $entry;
                     }
@@ -103,7 +110,7 @@ final class SearchService implements ISearchService
             }
             return [
                 'results' => $list,
-                'qty' => count($list),
+                'qty'     => count($list),
             ];
         }
         catch (Exception $ex){

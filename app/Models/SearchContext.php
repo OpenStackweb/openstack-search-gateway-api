@@ -13,15 +13,15 @@
  **/
 use Illuminate\Database\Eloquent\Model;
 /**
- * Class SearchStatistic
+ * Class SearchContext
  * @package App\Models
  */
-final class SearchStatistic extends Model
+final class SearchContext extends Model
 {
-    protected $table = 'search_statistics';
+    protected $table = 'search_contexts';
 
-    public function context()
+    public function statistics()
     {
-        return $this->belongsTo('App\Model\SearchContext');
+        return $this->hasMany('App\Models\SearchStatistic', 'context_id','id');
     }
 }

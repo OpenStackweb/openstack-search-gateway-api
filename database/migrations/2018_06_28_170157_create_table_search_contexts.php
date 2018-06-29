@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableSearchStatistics extends Migration
+class CreateTableSearchContexts extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateTableSearchStatistics extends Migration
      */
     public function up()
     {
-        Schema::create('search_statistics', function($table)
+        Schema::create('search_contexts', function($table)
         {
             $table->bigIncrements('id');
-            $table->string('term', 255)->nullable()->default('');
-            $table->bigInteger("hits")->unsigned();
+            $table->string('external_id', 255)->nullable()->default('');
             $table->timestamps();
         });
     }
@@ -29,7 +28,6 @@ class CreateTableSearchStatistics extends Migration
      */
     public function down()
     {
-        //
-        Schema::dropIfExists('search_statistics');
+        Schema::dropIfExists('search_contexts');
     }
 }
