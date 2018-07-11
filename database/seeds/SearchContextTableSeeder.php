@@ -42,5 +42,11 @@ final class SearchContextTableSeeder extends Seeder
                 'external_id' => 'superuser-openstack',
             )
         );
+
+        SearchContext::create(
+            array(
+                'external_id' => 'blog',
+            )
+        );
     }
 }
