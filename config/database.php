@@ -1,5 +1,31 @@
 <?php
 
+$use_ssl = env('DB_USE_SSL', false);
+
+$db_config = [
+    'driver' => 'mysql',
+    'host' => env('DB_HOST', '127.0.0.1'),
+    'port' => env('DB_PORT', '3306'),
+    'database' => env('DB_DATABASE', 'os_search'),
+    'username' => env('DB_USERNAME', 'root'),
+    'password' => env('DB_PASSWORD', ''),
+    'unix_socket' => env('DB_SOCKET', ''),
+    'charset' => 'utf8mb4',
+    'collation' => 'utf8mb4_unicode_ci',
+    'prefix' => '',
+    'strict' => true,
+    'engine' => null,
+];
+
+if($use_ssl) {
+    $db_config['options'] = [
+        PDO::MYSQL_ATTR_SSL_CA => env('DB_MYSQL_ATTR_SSL_CA', '/etc/mysql-client-ssl/ca-cert.pem'),
+        PDO::MYSQL_ATTR_SSL_KEY => env('DB_MYSQL_ATTR_SSL_KEY', '/etc/mysql-client-ssl/client-key.pem'),
+        PDO::MYSQL_ATTR_SSL_CERT => env('DB_MYSQL_ATTR_SSL_CERT', '/etc/mysql-client-ssl/client-cert.pem'),
+        PDO::MYSQL_ATTR_SSL_CIPHER => env('DB_MYSQL_ATTR_SSL_CIPHER', 'DHE-RSA-AES256-SHA'),
+    ];
+}
+
 return [
 
     /*
@@ -32,21 +58,7 @@ return [
     */
 
     'connections' => [
-
-        'mysql' => [
-            'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'os_search'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
-        ],
+        'mysql' => $db_config,
     ],
 
     /*
