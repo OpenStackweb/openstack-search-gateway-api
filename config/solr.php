@@ -14,7 +14,7 @@
 
 return [
     'host' => env('SOLR_HOST', null),
-    'search_query' => env('SOLR_SEARCH_QUERY', "title:%s OR url:%s"),
+    'search_query' => env('SOLR_SEARCH_QUERY', 'title:%1$s OR url:%1$s'),
     'response_fields'=> env('SOLR_RESPONSE_FIELDS', 'url,title,type,content'),
     'query_weights' => env('SOLR_QUERY_WEIGHTS', 'title^0.5 url^0.2')
 ];

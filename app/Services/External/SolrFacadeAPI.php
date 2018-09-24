@@ -37,7 +37,7 @@ final class SolrFacadeAPI implements ISearchApi
 
         try {
 
-            $term = urlencode($term);
+            $term = urlencode(trim($term));
             $solr_host = Config::get("solr.host");
             $search_query = Config::get("solr.search_query");
             $response_fields = Config::get("solr.response_fields");
@@ -49,7 +49,7 @@ final class SolrFacadeAPI implements ISearchApi
             $client = new Client();
             $endpoint = sprintf('%s/solr/%s/select', $solr_host, $ctx);
             $query = [
-                'q' => sprintf($search_query, $term, $term, $term),
+                'q' => sprintf($search_query, $term),
                 'fl' => $response_fields,
                 'wt' => 'json',
                 'start' => $offset,
