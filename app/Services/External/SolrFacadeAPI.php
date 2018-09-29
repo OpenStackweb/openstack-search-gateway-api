@@ -102,7 +102,6 @@ final class SolrFacadeAPI implements ISearchApi
             $query = [
                 'suggest.q' => trim($term),
                 'suggest' => 'true',
-                'suggest.build' => 'true',
                 'wt' => 'json',
             ];
 
