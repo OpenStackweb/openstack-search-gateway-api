@@ -102,8 +102,11 @@ final class SearchService implements ISearchService
                     if (isset($results['numFound']) && intval($results['numFound']) == 0) continue;
                     $suggestions = $results['suggestions'];
                     foreach ($suggestions as $entry) {
-                        if (isset($dic[$entry['payload']])) continue;
-                        $dic[$entry['payload']] = $entry['payload'];
+                        if(!isset($entry['payload'])) continue;
+                        $payload = $entry['payload'];
+                        if(empty($payload)) continue;
+                        if (isset($dic[$payload])) continue;
+                        $dic[$payload] = $payload;
                         $list[] = $entry;
                     }
                 }
