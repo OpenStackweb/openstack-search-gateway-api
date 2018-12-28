@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 /**
  * Class RequestUtils
@@ -19,23 +19,21 @@ use Illuminate\Support\Facades\Log;
  */
 final class RequestUtils {
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return bool|string
+     */
     public static function getCurrentRoutePath($request)
     {
         try
         {
-            //gets routes from container and try to find the route
-            $router = App::make('router');
-            $routes = $router->getRoutes();
-            $route  = $routes->match($request);
-            if (!is_null($route))
-            {
-                $route = $route->getPath();
-                if (strpos($route, '/') != 0)
-                {
-                    $route = '/' . $route;
-                }
-                return $route;
-            }
+            $route = Route::getRoutes()->match($request);
+            if(is_null($route)) return false;
+            $route_path  = $route->uri();
+            if (strpos($route_path, '/') != 0)
+                $route_path = '/' . $route_path;
+
+            return $route_path;
         }
         catch (\Exception $ex)
         {
